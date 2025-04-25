@@ -1,2 +1,2 @@
 # code-generator
-代码生成
+无聊 做代码生成玩
