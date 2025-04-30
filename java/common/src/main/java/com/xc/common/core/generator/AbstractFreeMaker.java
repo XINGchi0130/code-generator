@@ -1,5 +1,7 @@
 package com.xc.common.core.generator;
 
+import com.xc.common.constant.CharacterConstants;
+import com.xc.common.constant.FreeMakerConstants;
 import com.xc.common.utils.FreeMakerUtils;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -16,16 +18,14 @@ public abstract class AbstractFreeMaker {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public static final String ENCODING = "utf-8";
-    public static final int ENCODING_SIZE = 10240;
 
-    protected void execute(String outFileUrl, String templateFileUrl, String templateFileName) throws IOException, TemplateException {
+    private void execute(String outFileUrl, String templateFileUrl, String templateFileName) throws IOException, TemplateException {
         Map<String, Object> dataMap = new HashMap<>();
         Configuration configuration = FreeMakerUtils.crateConfiguration(templateFileUrl);
         File outFile = new File(outFileUrl);
         FileOutputStream os = new FileOutputStream(outFile);
-        Template template = configuration.getTemplate(templateFileName, ENCODING);
-        Writer out = new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(outFile.toPath()), ENCODING), ENCODING_SIZE);
+        Template template = configuration.getTemplate(templateFileName, CharacterConstants.UTF8);
+        Writer out = new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(outFile.toPath()), CharacterConstants.UTF8));
         json2DataMap(dataMap);
         template.process(dataMap, out);
         out.close();
@@ -33,8 +33,8 @@ public abstract class AbstractFreeMaker {
     }
 
     private void json2DataMap(Map<String, Object> dataMap){
-        Map<String, Object> resources = ThreadLocalManager.getResources().get();
-        Object json = resources.get("json");
+        Map<String, Object> resources = ThreadLocalManager.getResources();
+        Object json = resources.get(FreeMakerConstants.JSON);
         editDataMap(dataMap);
     }
 

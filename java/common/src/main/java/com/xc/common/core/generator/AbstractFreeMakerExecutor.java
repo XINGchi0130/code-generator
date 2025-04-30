@@ -1,8 +1,8 @@
 package com.xc.common.core.generator;
 
+import com.xc.common.constant.FreeMakerConstants;
 import com.xc.common.core.annotation.FreeMaker;
 import com.xc.common.core.annotation.FreeMakerExecutor;
-import lombok.experimental.Accessors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,15 +28,15 @@ public abstract class AbstractFreeMakerExecutor {
     private ThreadPoolTaskExecutor threadPoolTaskExecutor;
 
     private void execute() {
-        Map<String, Object> resources = ThreadLocalManager.getResources().get();
-        String parentPath = (String) resources.get("parentPath");
+        Map<String, Object> resources = ThreadLocalManager.getResources();
+        String parentPath = (String) resources.get(FreeMakerConstants.PARENT_PATH);
         String executorType = this.getClass().getAnnotation(FreeMakerExecutor.class).executorType();
         Class<? extends AbstractFreeMaker>[] freeMakers = this.getClass().getAnnotation(FreeMakerExecutor.class).freeMakers();
         if(!StringUtils.hasText(parentPath) && !StringUtils.hasText(executorType)){
             List<CompletableFuture<Void>> completableFutureList = new ArrayList<>();
             for(Class<? extends AbstractFreeMaker> freeMaker : freeMakers){
-                CompletableFuture<Void> task = CompletableFuture.runAsync(()->{
-                    if(freeMaker.isAnnotationPresent(FreeMaker.class)){
+                if(freeMaker.isAnnotationPresent(FreeMaker.class)){
+                    CompletableFuture<Void> task = CompletableFuture.runAsync(()->{
                         String outFileRelativePath =  parentPath.concat(freeMaker.getAnnotation(FreeMaker.class).outFileRelativePath());
                         String templateFilePath = freeMaker.getAnnotation(FreeMaker.class).templateFilePath();
                         String templateFileName = freeMaker.getAnnotation(FreeMaker.class).templateFileName();
@@ -46,17 +46,17 @@ public abstract class AbstractFreeMakerExecutor {
                             executeMethod.setAccessible(true);
                             executeMethod.invoke(freeMaker, outFileRelativePath, templateFilePath, templateFileName);
                         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-                            e.printStackTrace();
                             logger.warn(executorType.concat(":").concat(e.toString()));
                         }
-                    }else{
-                        logger.warn(executorType.concat(":There is no FreeMaker annotation."));
-                    }
-                }, threadPoolTaskExecutor);
-                completableFutureList.add(task);
+                    }, threadPoolTaskExecutor);
+                    completableFutureList.add(task);
+                }else{
+                    logger.warn(executorType.concat(":There is no FreeMaker annotation."));
+                }
             }
             CompletableFuture<Void> completableFuture = CompletableFuture.allOf((CompletableFuture<?>) completableFutureList);
             completableFuture.join();
+            ThreadLocalManager.clear();
         }
     }
 }
