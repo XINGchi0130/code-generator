@@ -1,10 +1,14 @@
 package com.xc.common.aspect;
 
 import com.xc.common.constant.FreeMakerConstants;
+import com.xc.common.constant.RedisConstants;
 import com.xc.common.core.annotation.FreeMakerExecutor;
 import com.xc.common.core.generator.AbstractFreeMakerExecutor;
 import com.xc.common.core.generator.FreeMakerExecutorHolder;
 import com.xc.common.core.generator.ThreadLocalManager;
+import com.xc.common.redis.RedisService;
+import com.xc.common.utils.FreeMakerUtils;
+import com.xc.common.utils.ReflectUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -30,6 +34,9 @@ public class GeneratorAspect {
     @Autowired
     private FreeMakerExecutorHolder freeMakerExecutorHolder;
 
+    @Autowired
+    private RedisService redisService;
+
     @Pointcut("@annotation(com.xc.common.core.annotation.Generator)")
     public void generator() {
     }
@@ -37,10 +44,15 @@ public class GeneratorAspect {
     @Around("generator()")
     public void generate(ProceedingJoinPoint proceedingJoinPoint){
         MethodSignature signature = (MethodSignature) proceedingJoinPoint.getSignature();
-        Method method = signature.getMethod();
-        beforeGenerate(method);
+        Method requestMethod = signature.getMethod();
+
+        Object[] args = proceedingJoinPoint.getArgs();
+        Parameter[] parameters = requestMethod.getParameters();
+        FreeMakerUtils.setRequestParameters(parameters, args);
         try {
+            beforeGenerate();
             doGenerate();
+            afterGenerate();
             proceedingJoinPoint.proceed();
         } catch (Throwable e) {
             throw new RuntimeException(e);
@@ -48,30 +60,37 @@ public class GeneratorAspect {
     }
 
     private void doGenerate() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        Map<String, Object> parameterMap = ThreadLocalManager.getResources();
-        AbstractFreeMakerExecutor freeMakerExecutor = freeMakerExecutorHolder.getFreeMakerExecutorHolder().get(parameterMap.get(FreeMakerConstants.EXECUTOR_TYPE));
+        AbstractFreeMakerExecutor freeMakerExecutor = freeMakerExecutorHolder.getCurrentFreeMakerExecutor();
         if(ObjectUtils.isEmpty(freeMakerExecutor)){
-            Method execute = freeMakerExecutor.getClass().getDeclaredMethod("execute");
-            execute.setAccessible(true);
-            execute.invoke(FreeMakerExecutor.class);
+            ReflectUtils.invokeMethod(freeMakerExecutor.getClass(), "execute");
         }else{
             throw new RuntimeException();
         }
     }
 
-    private void beforeGenerate(Method method){
-        Parameter[] parameters = method.getParameters();
-        Map<String, Object> parameterMap = ThreadLocalManager.getResources();
-        for(Parameter parameter : parameters){
-            parameterMap.put(parameter.getName(), parameter);
+    private void beforeGenerate() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        AbstractFreeMakerExecutor freeMakerExecutor = freeMakerExecutorHolder.getCurrentFreeMakerExecutor();
+
+        if(ObjectUtils.isEmpty(freeMakerExecutor)){
+            throw new RuntimeException("GeneratorAspect.beforeGenerate: freeMakerExecutor is null");
         }
-        if(!validateParameters(parameterMap)){
-            throw new RuntimeException();
+
+        String redisKey = RedisConstants.FREEMAKER_EXECUTE_KEY.concat(FreeMakerUtils.getCurrentExecutorType());
+        if(redisService.exists(redisKey)){
+            throw new RuntimeException("freeMakerExecutor is currently executing");
         }
-        ThreadLocalManager.setResources(parameterMap);
+        redisService.set(redisKey, true, 10 * 60);
+
+        ReflectUtils.invokeMethod(freeMakerExecutor.getClass(), "beforeGenerate");
     }
 
-    private Boolean validateParameters(Map<String, Object> parameterMap){
-        return parameterMap.containsKey(FreeMakerConstants.JSON) && parameterMap.containsKey(FreeMakerConstants.EXECUTOR_TYPE);
+    private void afterGenerate() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        AbstractFreeMakerExecutor freeMakerExecutor = freeMakerExecutorHolder.getCurrentFreeMakerExecutor();
+
+        ReflectUtils.invokeMethod(freeMakerExecutor.getClass(), "afterGenerate");
+
+        String redisKey = RedisConstants.FREEMAKER_EXECUTE_KEY.concat(FreeMakerUtils.getCurrentExecutorType());
+        redisService.delete(redisKey);
+        ThreadLocalManager.clear();
     }
 }

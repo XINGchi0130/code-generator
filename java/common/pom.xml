@@ -15,8 +15,10 @@
 	<description>代码生成工具模块</description>
 
 	<properties>
-
+		<slf4j-api.version>1.7.30</slf4j-api.version>
+		<slf4j-log4j12.version>1.7.30</slf4j-log4j12.version>
 	</properties>
+
 	<dependencies>
 		<!-- 添加 freemarker 的依赖 -->
 		<dependency>
@@ -28,6 +30,30 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-aop</artifactId>
+		</dependency>
+
+		<!-- Redis -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-redis</artifactId>
+		</dependency>
+
+		<!-- jackson -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+		</dependency>
+
+		<!-- slf4j -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>${slf4j-api.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>${slf4j-log4j12.version}</version>
 		</dependency>
 
 		<dependency>

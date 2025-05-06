@@ -24,3 +24,21 @@ spring:
     basename: i18n/messages
   profiles:
     active: druid
+  # redis配置
+  redis:
+    database: 0
+    host: 127.0.0.1
+    port: 6379
+    password:
+    timeout: 5000ms
+    lettuce:
+      pool:
+        max-active: 8
+        max-wait: -1
+        max-idle: 8
+        min-idle: 0
+  # 日志配置
+  logging:
+    config: /home/zxc/IdeaProjects/code-generator/java/generator/src/main/resources/logback.xml
+    level:
+      com.hl.magic: trace

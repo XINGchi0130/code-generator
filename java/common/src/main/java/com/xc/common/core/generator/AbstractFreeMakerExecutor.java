@@ -32,6 +32,7 @@ public abstract class AbstractFreeMakerExecutor {
         String parentPath = (String) resources.get(FreeMakerConstants.PARENT_PATH);
         String executorType = this.getClass().getAnnotation(FreeMakerExecutor.class).executorType();
         Class<? extends AbstractFreeMaker>[] freeMakers = this.getClass().getAnnotation(FreeMakerExecutor.class).freeMakers();
+        beforeExecute();
         if(!StringUtils.hasText(parentPath) && !StringUtils.hasText(executorType)){
             List<CompletableFuture<Void>> completableFutureList = new ArrayList<>();
             for(Class<? extends AbstractFreeMaker> freeMaker : freeMakers){
@@ -58,5 +59,14 @@ public abstract class AbstractFreeMakerExecutor {
             completableFuture.join();
             ThreadLocalManager.clear();
         }
+        afterExecute();
     }
+
+    abstract public void beforeExecute();
+
+    abstract public void afterExecute();
+
+    abstract public void beforeGenerate();
+
+    abstract public void afterGenerate();
 }
