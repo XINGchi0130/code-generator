@@ -1,9 +1,5 @@
 package com.xc.common.core.generator;
 
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
-import org.springframework.core.NamedThreadLocal;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -11,7 +7,7 @@ import java.util.Map;
 @Component
 public class ThreadLocalManager {
 
-    private static ThreadLocal<Map<String, Object>> resources = new ThreadLocal<>();
+    private static InheritableThreadLocal<Map<String, Object>> resources = new InheritableThreadLocal<>();
 
     public static Map<String, Object> getResources(){
         return resources.get();

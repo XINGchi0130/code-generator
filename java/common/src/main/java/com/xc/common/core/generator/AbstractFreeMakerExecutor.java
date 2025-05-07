@@ -3,6 +3,7 @@ package com.xc.common.core.generator;
 import com.xc.common.constant.FreeMakerConstants;
 import com.xc.common.core.annotation.FreeMaker;
 import com.xc.common.core.annotation.FreeMakerExecutor;
+import com.xc.common.utils.ReflectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +11,6 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -41,11 +41,13 @@ public abstract class AbstractFreeMakerExecutor {
                         String outFileRelativePath =  parentPath.concat(freeMaker.getAnnotation(FreeMaker.class).outFileRelativePath());
                         String templateFilePath = freeMaker.getAnnotation(FreeMaker.class).templateFilePath();
                         String templateFileName = freeMaker.getAnnotation(FreeMaker.class).templateFileName();
-                        Method executeMethod = null;
+                        boolean myExeCute = freeMaker.getAnnotation(FreeMaker.class).myExeCute();
                         try {
-                            executeMethod = freeMaker.getDeclaredMethod("execute", String.class, String.class, String.class);
-                            executeMethod.setAccessible(true);
-                            executeMethod.invoke(freeMaker, outFileRelativePath, templateFilePath, templateFileName);
+                            if(!myExeCute){
+                                ReflectUtils.invokeMethod(freeMaker, "execute", new Class[]{String.class, String.class, String.class}, new Object[]{outFileRelativePath, templateFilePath, templateFileName});
+                            }else{
+                                ReflectUtils.invokeMethod(freeMaker, "myExeCute", new Class[]{String.class, String.class, String.class}, new Object[]{outFileRelativePath, templateFilePath, templateFileName});
+                            }
                         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                             logger.warn(executorType.concat(":").concat(e.toString()));
                         }
@@ -55,7 +57,7 @@ public abstract class AbstractFreeMakerExecutor {
                     logger.warn(executorType.concat(":There is no FreeMaker annotation."));
                 }
             }
-            CompletableFuture<Void> completableFuture = CompletableFuture.allOf((CompletableFuture<?>) completableFutureList);
+            CompletableFuture<Void> completableFuture = CompletableFuture.allOf(completableFutureList.toArray(new CompletableFuture[0]));
             completableFuture.join();
             ThreadLocalManager.clear();
         }

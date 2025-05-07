@@ -18,7 +18,6 @@
 
 	<properties>
 		<java.version>8</java.version>
-		<alibaba.fastjson.version>1.2.80</alibaba.fastjson.version>
 	</properties>
 	<modules>
 		<module>generator</module>

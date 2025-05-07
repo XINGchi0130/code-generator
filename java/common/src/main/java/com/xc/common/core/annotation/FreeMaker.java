@@ -9,4 +9,5 @@ public @interface FreeMaker {
     String outFileRelativePath() default "";
     String templateFilePath() default "";
     String templateFileName() default "";
+    boolean myExeCute() default false;
 }

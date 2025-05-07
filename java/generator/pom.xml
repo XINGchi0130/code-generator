@@ -15,8 +15,7 @@
 	<description>代码生成模块</description>
 
 	<properties>
-		<springfox-swagger-ui.version>2.9.2</springfox-swagger-ui.version>
-		<springfox-swagger2.version>2.9.2</springfox-swagger2.version>
+		<swagger2.version>2.9.2</swagger2.version>
 	</properties>
 	<dependencies>
 		<!-- 添加 common 的依赖 -->
@@ -31,12 +30,12 @@
 		<dependency>
 			<groupId>io.springfox</groupId>
 			<artifactId>springfox-swagger2</artifactId>
-			<version>${springfox-swagger2.version}</version>
+			<version>${swagger2.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>io.springfox</groupId>
 			<artifactId>springfox-swagger-ui</artifactId>
-			<version>${springfox-swagger-ui.version}</version>
+			<version>${swagger2.version}</version>
 		</dependency>
 
 		<dependency>

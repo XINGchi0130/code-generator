@@ -36,6 +36,6 @@ public class FreeMakerUtils {
     }
 
     public static Boolean validateParameters(Map<String, Object> parameterMap){
-        return parameterMap.containsKey(FreeMakerConstants.JSON) && parameterMap.containsKey(FreeMakerConstants.EXECUTOR_TYPE);
+        return parameterMap.containsKey(FreeMakerConstants.JSON_SCHEMA) && parameterMap.containsKey(FreeMakerConstants.EXECUTOR_TYPE) && parameterMap.containsKey(FreeMakerConstants.PARENT_PATH);
     }
 }

@@ -32,9 +32,11 @@ public abstract class AbstractFreeMaker {
         os.close();
     }
 
+    public abstract void myExecute(String outFileUrl, String templateFileUrl, String templateFileName);
+
     private void json2DataMap(Map<String, Object> dataMap){
         Map<String, Object> resources = ThreadLocalManager.getResources();
-        Object json = resources.get(FreeMakerConstants.JSON);
+        Object json = resources.get(FreeMakerConstants.JSON_SCHEMA);
         editDataMap(dataMap);
     }
 

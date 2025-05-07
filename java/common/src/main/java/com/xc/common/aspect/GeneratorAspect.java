@@ -1,17 +1,17 @@
 package com.xc.common.aspect;
 
-import com.xc.common.constant.FreeMakerConstants;
 import com.xc.common.constant.RedisConstants;
-import com.xc.common.core.annotation.FreeMakerExecutor;
 import com.xc.common.core.generator.AbstractFreeMakerExecutor;
 import com.xc.common.core.generator.FreeMakerExecutorHolder;
 import com.xc.common.core.generator.ThreadLocalManager;
 import com.xc.common.redis.RedisService;
 import com.xc.common.utils.FreeMakerUtils;
 import com.xc.common.utils.ReflectUtils;
+import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
@@ -23,7 +23,6 @@ import org.springframework.util.ObjectUtils;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.Map;
 
 @Aspect
 @Component
@@ -41,14 +40,18 @@ public class GeneratorAspect {
     public void generator() {
     }
 
-    @Around("generator()")
-    public void generate(ProceedingJoinPoint proceedingJoinPoint){
-        MethodSignature signature = (MethodSignature) proceedingJoinPoint.getSignature();
+    @Before("generator()")
+    public void before(JoinPoint joinPoint){
+        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method requestMethod = signature.getMethod();
 
-        Object[] args = proceedingJoinPoint.getArgs();
+        Object[] args = joinPoint.getArgs();
         Parameter[] parameters = requestMethod.getParameters();
         FreeMakerUtils.setRequestParameters(parameters, args);
+    }
+
+    @Around("generator()")
+    public void generate(ProceedingJoinPoint proceedingJoinPoint){
         try {
             beforeGenerate();
             doGenerate();
@@ -79,7 +82,7 @@ public class GeneratorAspect {
         if(redisService.exists(redisKey)){
             throw new RuntimeException("freeMakerExecutor is currently executing");
         }
-        redisService.set(redisKey, true, 10 * 60);
+        redisService.set(redisKey, FreeMakerUtils.getCurrentExecutorType(), 10 * 60);
 
         ReflectUtils.invokeMethod(freeMakerExecutor.getClass(), "beforeGenerate");
     }
