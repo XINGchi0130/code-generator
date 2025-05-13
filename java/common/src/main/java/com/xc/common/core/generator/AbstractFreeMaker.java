@@ -1,8 +1,12 @@
 package com.xc.common.core.generator;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.xc.common.constant.CharacterConstants;
-import com.xc.common.constant.FreeMakerConstants;
+import com.xc.common.core.annotation.FreeMaker;
+import com.xc.common.core.domain.model.Table;
 import com.xc.common.utils.FreeMakerUtils;
+import com.xc.common.utils.JsonUtils;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -16,29 +20,26 @@ import java.util.Map;
 
 public abstract class AbstractFreeMaker {
 
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
     private void execute(String outFileUrl, String templateFileUrl, String templateFileName) throws IOException, TemplateException {
-        Map<String, Object> dataMap = new HashMap<>();
+        ObjectMapper objectMapper = JsonUtils.getObjectMapper();
+        HashMap<String, Table> templateTypeTable = ThreadLocalManager.getCurrentTemplateTypeTable();
+        String templateType = this.getClass().getAnnotation(FreeMaker.class).templateType();
+        HashMap<String, Object> table = objectMapper.convertValue(templateTypeTable.get(templateType), new TypeReference<HashMap<String, Object>>(){});
         Configuration configuration = FreeMakerUtils.crateConfiguration(templateFileUrl);
         File outFile = new File(outFileUrl);
         FileOutputStream os = new FileOutputStream(outFile);
         Template template = configuration.getTemplate(templateFileName, CharacterConstants.UTF8);
         Writer out = new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(outFile.toPath()), CharacterConstants.UTF8));
-        json2DataMap(dataMap);
-        template.process(dataMap, out);
+        editTable(table);
+        template.process(table, out);
         out.close();
         os.close();
     }
 
     public abstract void myExecute(String outFileUrl, String templateFileUrl, String templateFileName);
 
-    private void json2DataMap(Map<String, Object> dataMap){
-        Map<String, Object> resources = ThreadLocalManager.getResources();
-        Object json = resources.get(FreeMakerConstants.JSON_SCHEMA);
-        editDataMap(dataMap);
-    }
-
-    public abstract void editDataMap(Map<String, Object> dataMap);
+    public abstract void editTable(Map<String, Object> dataMap);
 }

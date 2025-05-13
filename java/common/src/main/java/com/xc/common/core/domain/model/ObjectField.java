@@ -7,10 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * 对象字段规范
- * object field specification
- */
 @Data
 public class ObjectField extends Field{
 

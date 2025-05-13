@@ -2,6 +2,7 @@ package com.xc.common.core.generator;
 
 import com.xc.common.constant.FreeMakerConstants;
 import com.xc.common.core.annotation.FreeMakerExecutor;
+import com.xc.common.core.domain.XCParameters;
 import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,8 +41,8 @@ public class FreeMakerExecutorHolder {
     }
 
     public AbstractFreeMakerExecutor getCurrentFreeMakerExecutor(){
-        Map<String, Object> resources = ThreadLocalManager.getResources();
-        String executorType = (String) resources.get(FreeMakerConstants.EXECUTOR_TYPE);
+        XCParameters resources = ThreadLocalManager.getResources();
+        String executorType = resources.getExecutorType();
         AbstractFreeMakerExecutor freeMakerExecutor = freeMakerExecutorHolder.get(executorType);
         if(ObjectUtils.isEmpty(freeMakerExecutor)){
             logger.warn("FreeMakerExecutorHolder.getCurrentFreeMakerExecutor: freeMakerExecutor is null");

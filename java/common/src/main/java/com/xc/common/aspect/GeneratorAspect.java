@@ -1,6 +1,7 @@
 package com.xc.common.aspect;
 
 import com.xc.common.constant.RedisConstants;
+import com.xc.common.core.domain.XCParameters;
 import com.xc.common.core.generator.AbstractFreeMakerExecutor;
 import com.xc.common.core.generator.FreeMakerExecutorHolder;
 import com.xc.common.core.generator.ThreadLocalManager;
@@ -28,7 +29,7 @@ import java.lang.reflect.Parameter;
 @Component
 public class GeneratorAspect {
 
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private FreeMakerExecutorHolder freeMakerExecutorHolder;
@@ -42,12 +43,8 @@ public class GeneratorAspect {
 
     @Before("generator()")
     public void before(JoinPoint joinPoint){
-        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
-        Method requestMethod = signature.getMethod();
-
-        Object[] args = joinPoint.getArgs();
-        Parameter[] parameters = requestMethod.getParameters();
-        FreeMakerUtils.setRequestParameters(parameters, args);
+        XCParameters xcParameters = (XCParameters) joinPoint.getArgs()[0];
+        ThreadLocalManager.setResources(xcParameters);
     }
 
     @Around("generator()")
@@ -78,11 +75,11 @@ public class GeneratorAspect {
             throw new RuntimeException("GeneratorAspect.beforeGenerate: freeMakerExecutor is null");
         }
 
-        String redisKey = RedisConstants.FREEMAKER_EXECUTE_KEY.concat(FreeMakerUtils.getCurrentExecutorType());
+        String redisKey = RedisConstants.FREEMAKER_EXECUTE_KEY.concat(ThreadLocalManager.getCurrentExecutorType());
         if(redisService.exists(redisKey)){
             throw new RuntimeException("freeMakerExecutor is currently executing");
         }
-        redisService.set(redisKey, FreeMakerUtils.getCurrentExecutorType(), 10 * 60);
+        redisService.set(redisKey, ThreadLocalManager.getCurrentExecutorType(), 5 * 60);
 
         ReflectUtils.invokeMethod(freeMakerExecutor.getClass(), "beforeGenerate");
     }
@@ -92,7 +89,7 @@ public class GeneratorAspect {
 
         ReflectUtils.invokeMethod(freeMakerExecutor.getClass(), "afterGenerate");
 
-        String redisKey = RedisConstants.FREEMAKER_EXECUTE_KEY.concat(FreeMakerUtils.getCurrentExecutorType());
+        String redisKey = RedisConstants.FREEMAKER_EXECUTE_KEY.concat(ThreadLocalManager.getCurrentExecutorType());
         redisService.delete(redisKey);
         ThreadLocalManager.clear();
     }

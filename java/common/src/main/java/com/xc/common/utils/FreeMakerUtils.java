@@ -2,6 +2,7 @@ package com.xc.common.utils;
 
 
 import com.xc.common.constant.FreeMakerConstants;
+import com.xc.common.core.domain.XCParameters;
 import com.xc.common.core.generator.ThreadLocalManager;
 import freemarker.template.Configuration;
 
@@ -19,23 +20,5 @@ public class FreeMakerUtils {
         configuration.setDefaultEncoding("utf-8");
 
         return configuration;
-    }
-
-    public static String getCurrentExecutorType(){
-        Map<String, Object> parameterMap = ThreadLocalManager.getResources();
-        return (String) parameterMap.get(FreeMakerConstants.EXECUTOR_TYPE);
-    }
-
-    public static void setRequestParameters(Parameter[] parameters, Object[] args) {
-        Map<String, Object> parameterMap = ThreadLocalManager.getResources();
-        for (int i = 0; i < parameters.length; i++) {
-            parameterMap.put(parameters[i].getName(), args[i]);
-        }
-        validateParameters(parameterMap);
-        ThreadLocalManager.setResources(parameterMap);
-    }
-
-    public static Boolean validateParameters(Map<String, Object> parameterMap){
-        return parameterMap.containsKey(FreeMakerConstants.JSON_SCHEMA) && parameterMap.containsKey(FreeMakerConstants.EXECUTOR_TYPE) && parameterMap.containsKey(FreeMakerConstants.PARENT_PATH);
     }
 }

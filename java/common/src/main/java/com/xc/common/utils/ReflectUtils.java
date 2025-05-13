@@ -10,7 +10,7 @@ import java.lang.reflect.Method;
 
 public class ReflectUtils {
 
-    private static Logger logger = LoggerFactory.getLogger(ReflectUtils.class);
+    private static final Logger logger = LoggerFactory.getLogger(ReflectUtils.class);
 
     public static Object invokeMethod(Class<?> clazz, String methodName, Class<?>[] parametersType, Object[] parameters) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         if(ObjectUtils.isEmpty(clazz) || StringUtils.hasText(methodName)){

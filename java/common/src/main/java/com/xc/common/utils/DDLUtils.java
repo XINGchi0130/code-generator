@@ -16,10 +16,10 @@ public class DDLUtils {
     }
 
     static public HashMap<String,Object> DDL2HashMap(String ddl, String title, String description){
-        Map<String,Object> JsonSchema = new HashMap<>();
-        JsonSchema.put("title",title);
-        JsonSchema.put("description",description);
-        JsonSchema.put("type", FieldType.OBJECT.getType());
+        Map<String,Object> jsonSchema = new HashMap<>();
+        jsonSchema.put("title",title);
+        jsonSchema.put("description",description);
+        jsonSchema.put("type", FieldType.OBJECT.getType());
         return null;
     }
 

@@ -6,6 +6,7 @@ import java.lang.annotation.*;
 @Target(ElementType.TYPE)
 @Documented
 public @interface FreeMaker {
+    String templateType() default "";
     String outFileRelativePath() default "";
     String templateFilePath() default "";
     String templateFileName() default "";

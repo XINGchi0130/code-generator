@@ -3,15 +3,11 @@ package com.xc.common.core.domain.model;
 import com.xc.common.enums.FieldType;
 import lombok.Data;
 
-/**
- * 数字字段规范
- * digital field specification
- */
 @Data
 public class NumberField extends Field{
 
     {
-        // default number type
+        // 默认数字类型
         this.setType(FieldType.NUMBER.getType());
     }
 
@@ -25,7 +21,6 @@ public class NumberField extends Field{
 
     /**
      * 数字的倍数
-     * multiples of numbers
      */
     private String multipleOf;
 
@@ -33,7 +28,6 @@ public class NumberField extends Field{
 
     /**
      * 大于的值
-     * the value greater than
      */
     private String exclusiveMinimum;
 
@@ -41,7 +35,6 @@ public class NumberField extends Field{
 
     /**
      * 小于的值
-     * the value less than
      */
     private String exclusiveMaximum;
 }
