@@ -7,7 +7,11 @@ import router from './router'
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 
+import highlightPlugin from "@highlightjs/vue-plugin";
+import 'highlight.js/styles/atom-one-dark.css';
+
 Vue.use(ElementUI);
+Vue.use(highlightPlugin);
 
 Vue.config.productionTip = false
 

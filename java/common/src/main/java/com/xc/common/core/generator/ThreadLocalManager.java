@@ -4,12 +4,14 @@ import com.xc.common.core.domain.XCParameters;
 import com.xc.common.core.domain.model.Table;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-
 @Component
 public class ThreadLocalManager {
 
     private static InheritableThreadLocal<XCParameters> resources = new InheritableThreadLocal<>();
+
+    static {
+        resources.set(new XCParameters());
+    }
 
     public static XCParameters getResources(){
         return resources.get();
@@ -31,8 +33,8 @@ public class ThreadLocalManager {
         return resources.get().getParentPath();
     }
 
-    public static HashMap<String, Table> getCurrentTemplateTypeTable(){
-        return resources.get().getTemplateTypeTable();
+    public static Table getCurrentTable(){
+        return resources.get().getTable();
     }
 
     public static void setResources(XCParameters xcParameters){

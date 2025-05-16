@@ -6,7 +6,6 @@ import com.xc.common.core.generator.AbstractFreeMakerExecutor;
 import com.xc.common.core.generator.FreeMakerExecutorHolder;
 import com.xc.common.core.generator.ThreadLocalManager;
 import com.xc.common.redis.RedisService;
-import com.xc.common.utils.FreeMakerUtils;
 import com.xc.common.utils.ReflectUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -14,7 +13,6 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
-import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,8 +20,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 
 @Aspect
 @Component
@@ -91,6 +87,5 @@ public class GeneratorAspect {
 
         String redisKey = RedisConstants.FREEMAKER_EXECUTE_KEY.concat(ThreadLocalManager.getCurrentExecutorType());
         redisService.delete(redisKey);
-        ThreadLocalManager.clear();
     }
 }

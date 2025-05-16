@@ -1,16 +1,16 @@
 <template>
    <div>
-      <GeneratorBySql></GeneratorBySql>
+      <Generator></Generator>
    </div>
 </template>
 <script>
 
-import GeneratorBySql from '@/views/GeneratorBySql'
+import Generator from '@/views/Generator'
 
 export default {
    name:'Index',
    components:{
-      GeneratorBySql
+      Generator
    },
    data() {
       return {
